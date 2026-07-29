@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Previous Reports</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📜 Previous Career Reports</h1>
+        <a href="{{ url_for('dashboard') }}">&larr; Back to Dashboard</a>
+
+        {% if reports %}
+        <div class="cards-grid">
+            {% for report in reports %}
+            <div class="card">
+                <h3>{{ report.job }}</h3>
+                <p><strong>Risk:</strong> {{ report.risk }}%</p>
+                <p><strong>Level:</strong> {{ report.level }}</p>
+                <p><strong>Skills Chosen:</strong> {{ report.selected_skills }}</p>
+                <p><strong>Date:</strong> {{ report.created_at.strftime('%d-%m-%Y') }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No reports yet. Run an analysis on the dashboard to see it here.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

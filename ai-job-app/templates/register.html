@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Job Survival - Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body { background: #fdf9e6; font-family: 'Arial', sans-serif; }
+        .container { max-width: 400px; margin: 80px auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2e7d32; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+        button { width: 100%; padding: 12px; background: #2e7d32; color: white; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; }
+        button:hover { background: #1b5e20; }
+        .quotes { text-align: center; font-size: 18px; font-weight: bold; color: #388e3c; margin-bottom: 20px; min-height: 40px; }
+        a { text-decoration: none; color: #2e7d32; font-size: 14px; }
+        .small-text { font-size: 14px; text-align: center; margin-top: 10px; }
+        .error { color: #c62828; text-align: center; font-size: 14px; margin-top: -5px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quotes" id="quotes"></div>
+        <h2>Register</h2>
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="{{ url_for('register') }}">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required minlength="6">
+            <button type="submit">Register</button>
+        </form>
+        <div class="small-text">Already have an account? <a href="{{ url_for('login_page') }}">Login here</a></div>
+    </div>
+
+    <script>
+        const quotes = [
+            "Build skills that matter",
+            "Get future ready",
+            "Level up your skills",
+            "Get skilled for what's next?",
+            "Learn. Grow. Earn"
+        ];
+        let i = 0;
+        const quoteEl = document.getElementById("quotes");
+        function showQuote() {
+            quoteEl.innerText = quotes[i];
+            i = (i + 1) % quotes.length;
+        }
+        showQuote();
+        setInterval(showQuote, 2000);
+    </script>
+</body>
+</html>

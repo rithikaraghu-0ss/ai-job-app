@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Job Empowerment</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Marydale&display=swap');
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #fffde7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .top-nav h1 {
+            font-size: 42px;
+            font-family: 'Marydale', cursive;
+            color: #558b2f;
+            margin: 0;
+        }
+
+        .hero {
+            width: 100%;
+            height: 240px;
+            background-image: url('{{ url_for("static", filename="hero.jpg") }}');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .hero-quotes {
+            font-size: 28px;
+            color: #FC0FC0;
+            background: rgba(255,255,255,0.5);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-family: 'Marydale', cursive;
+        }
+
+        .logout-btn {
+            float: right;
+            background: #c8e6c9;
+            color: #33691e;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #558b2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .skill-checkbox {
+            background: #e0f2f1;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f1f8e9;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .transition-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .transition-item {
+            background: white;
+            padding: 15px;
+            border-left: 5px solid #558b2f;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .transition-item h4 {
+            margin: 0 0 10px 0;
+            color: #33691e;
+        }
+
+        .transition-footer {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #eee;
+            border-radius: 10px;
+            height: 30px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #ff4d6d;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            line-height: 30px;
+            font-weight: bold;
+            transition: width 0.4s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="top-nav">
+        <h1>AI Job Empowerment</h1>
+    </div>
+
+    <div class="hero">
+        <div class="hero-quotes" id="quotes-dashboard"></div>
+    </div>
+
+    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+
+    <form method="POST">
+        <label>Select Job:</label>
+        <select name="job" required id="job-select">
+            {% for job in jobs %}
+            <option value="{{ job }}" {% if job == selected_job %}selected{% endif %}>
+                {{ job }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Experience:</label>
+        <select name="experience" id="experience-select">
+            <option value="0">Beginner (0-1 yr)</option>
+            <option value="1">Intermediate (1-3 yr)</option>
+            <option value="2">Professional (3+ yr)</option>
+        </select>
+
+        <label>Select Your Skills:</label>
+        <div id="skills-box" class="skills-grid"></div>
+        <label>✍️ Other Skills (comma separated)</label>
+        <input type="text" name="other_skills"
+               placeholder="Example: Docker, AWS, Kali Linux">
+        <input type="hidden" name="skills" id="selected-skills">
+
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if result %}
+    <a href="{{ url_for('download_report') }}">
+        <button type="button">⬇️ Download Full Report</button>
+    </a>
+    <a href="{{ url_for('history') }}">
+        <button type="button">📜 View Previous Reports</button>
+    </a>
+
+    <div class="result">
+        <h2>{{ result.job }}</h2>
+        <p><b>Automation Risk:</b> {{ result.risk }}%</p>
+        <div class="card">
+
+            <h3>🧠 How the Risk Score is Calculated</h3>
+            <p>
+                The automation risk score is calculated based on five key factors:
+            </p>
+            <ul>
+                <li><strong>Routine Work (30%)</strong> – repetitive and structured tasks</li>
+                <li><strong>Repetitive Tasks (25%)</strong> – repeated daily operations</li>
+                <li><strong>AI Exposure (25%)</strong> – tasks already supported by AI tools</li>
+                <li><strong>Creativity (-10%)</strong> – reduces risk because creative work is harder to automate</li>
+                <li><strong>Human Interaction (-10%)</strong> – lowers risk due to human decision-making needs</li>
+            </ul>
+        </div>
+        <p><b>Risk Level:</b> {{ result.level }}</p>
+
+        <div>
+            <b>Skill Level:</b>
+            <div class="progress-container">
+                <div class="progress-bar" id="skill-meter">0%</div>
+            </div>
+        </div>
+        <p style="margin-top:10px; color:#555;">
+            Skill level is calculated based on your selected skills and experience.
+            More relevant skills and higher experience increase the percentage.
+        </p>
+
+        <h3>📊 Risk Comparison</h3>
+        <canvas id="chart"></canvas>
+
+        <div class="cards-grid">
+
+            <div class="card">
+                <h3>📊 Skill Gap</h3>
+                <ul>
+                    {% for s in skills_gap %}
+                    <li>{{ s }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card roadmap-card">
+                <h3>🛣️ Career Roadmap</h3>
+
+                <h4>30 Days</h4>
+                <ul>
+                    {% for item in roadmap["30_days"] %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>60 Days</h4>
+                <ul>
+                    {% for item in roadmap["60_days"] %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h4>90 Days</h4>
+                <ul>
+                    {% for item in roadmap["90_days"] %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>💼 Recommended Career Transitions</h3>
+                {% if career %}
+                <div class="transition-grid">
+                    {% for c in career %}
+                    <div class="transition-item">
+                        <h4>{{ result.job }} → {{ c.title }}</h4>
+                        <p><strong>Why this switch works:</strong></p>
+                        <p>{{ c.reason }}</p>
+                        <div class="transition-footer">
+                            Career Growth Path
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- INCOME -->
+            <div class="card">
+                <h3>💰 Income</h3>
+                {% for i in income %}
+                <p><b>{{ i.title }}</b><br>{{ i.desc }}</p>
+                {% endfor %}
+            </div>
+
+            <!-- JOB TRENDS -->
+            <div class="card">
+                <h3>📈 Job Trends</h3>
+                <ul>
+                    {% for t in trends %}
+                    <li>{{ t }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- UPSKILL -->
+            <div class="card">
+                <h3>🧠 Upskill Plan</h3>
+                <ul>
+                    {% for u in upskill %}
+                    <li>{{ u }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>📚 Resource Hub</h3>
+                <div class="transition-grid">
+                    {% for r in resources %}
+                    <div class="transition-item">
+                        <h4>{{ r.name }}</h4>
+                        <p><strong>Type:</strong> {{ r.type }}</p>
+                        <a href="{{ r.link }}" target="_blank">
+                            <button type="button">Open Resource</button>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card">
+            <h3>📞 Talk to an Expert</h3>
+
+            <p>If you need personalized career guidance, reach out to our experts directly.</p>
+
+            <p><b>Email:</b> chintana.k@cmr.edu.in</p>
+            <p><b>Response Time:</b> 24–48 hours</p>
+
+            <p><b>What you can ask:</b></p>
+            <ul>
+                <li>Career confusion or switching path</li>
+                <li>Skill improvement guidance</li>
+                <li>Resume feedback</li>
+                <li>Job roadmap help</li>
+            </ul>
+
+            <a href="mailto:chintana.k@cmr.edu.in">
+                <button type="button">📧 Email Expert Now</button>
+            </a>
+        </div>
+
+    </div>
+    {% endif %}
+</div>
+
+<script>
+const quotes = [
+    "Build skills that matter",
+    "Get future ready",
+    "Level up your skills",
+    "Learn. Grow. Earn"
+];
+
+let i = 0;
+const quoteEl = document.getElementById("quotes-dashboard");
+
+function showQuote() {
+    quoteEl.innerText = quotes[i];
+    i = (i + 1) % quotes.length;
+}
+showQuote();
+setInterval(showQuote, 2500);
+
+const jobSkills = {{ job_skills | tojson }};
+const savedSkills = "{{ user_skills | default('') }}".split(",");
+
+const jobSelect = document.getElementById("job-select");
+const skillsBox = document.getElementById("skills-box");
+const hiddenInput = document.getElementById("selected-skills");
+
+function updateSkills() {
+    const selectedJob = jobSelect.value;
+    const skills = jobSkills[selectedJob] || [];
+
+    skillsBox.innerHTML = "";
+
+    skills.forEach(skill => {
+        const label = document.createElement("label");
+        label.className = "skill-checkbox";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = skill;
+
+        if (savedSkills.includes(skill)) {
+            checkbox.checked = true;
+        }
+
+        checkbox.addEventListener("change", collectSkills);
+
+        label.appendChild(checkbox);
+        label.append(" " + skill);
+
+        skillsBox.appendChild(label);
+    });
+
+    collectSkills();
+}
+
+function collectSkills() {
+    const checked = document.querySelectorAll('#skills-box input[type="checkbox"]:checked');
+    const selected = Array.from(checked).map(cb => cb.value);
+
+    hiddenInput.value = selected.join(",");
+
+    const experience = parseInt(document.getElementById("experience-select").value || 0);
+
+    let skillPercent = selected.length * 8 + experience * 10;
+    skillPercent = Math.min(skillPercent, 100);
+
+    const meter = document.getElementById("skill-meter");
+
+    if (meter) {
+        meter.style.width = skillPercent + "%";
+        meter.innerText = skillPercent + "%";
+
+        if (skillPercent < 30) {
+            meter.style.background = "#ff4d6d";
+        } else if (skillPercent < 70) {
+            meter.style.background = "#ffb300";
+        } else {
+            meter.style.background = "#43a047";
+        }
+    }
+}
+
+jobSelect.addEventListener("change", updateSkills);
+document.getElementById("experience-select").addEventListener("change", collectSkills);
+
+window.onload = function () {
+    updateSkills();
+};
+
+const labels = {{ chart_labels | default([]) | tojson }};
+const values = {{ chart_values | default([]) | tojson }};
+
+if (labels.length > 0) {
+    new Chart(document.getElementById("chart"), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Automation Risk %',
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>

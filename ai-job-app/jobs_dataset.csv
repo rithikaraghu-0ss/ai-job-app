@@ -1,0 +1,26 @@
+job_title,category,routine_score,creativity_score,human_interaction,ai_exposure,repetitive_score
+Data Scientist,Technology,2,5,3,4,2
+AI Engineer,Technology,2,5,2,5,2
+Software Developer,Technology,3,4,2,5,3
+Cybersecurity Analyst,Technology,2,4,2,4,2
+Cloud Engineer,Technology,2,4,2,4,2
+DevOps Engineer,Technology,3,4,2,4,3
+UX Designer,Design,2,5,3,3,2
+Product Manager,Management,2,4,4,3,2
+Research Scientist,Research,1,5,2,3,1
+Doctor,Healthcare,1,5,5,2,1
+Surgeon,Healthcare,1,5,5,1,1
+Psychologist,Healthcare,1,5,5,1,1
+Teacher,Education,2,4,5,3,2
+Nurse,Healthcare,2,3,5,2,2
+Pharmacist,Healthcare,3,2,3,3,3
+Business Analyst,Business,4,3,3,4,4
+Financial Analyst,Finance,4,3,2,4,4
+Accountant,Finance,5,2,2,4,5
+HR Manager,Management,3,3,5,3,3
+Marketing Manager,Management,3,4,4,4,3
+Graphic Designer,Design,3,4,2,4,3
+Video Editor,Media,4,3,2,4,4
+Content Writer,Media,4,4,2,5,4
+Customer Support Executive,Support,5,1,4,4,5
+Data Entry Clerk,Administrative,5,1,1,5,5
